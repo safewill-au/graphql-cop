@@ -1,0 +1,11 @@
+# .betterleaksignore — per-fingerprint suppressions for CONFIRMED false positives only.
+#
+# Format: <commit-sha>:<path>:<rule-id>:<line>
+# Copy the exact fingerprint from a betterleaks finding (the `Fingerprint:` line).
+#
+# Keep this file as empty as possible. Prefer, in order:
+#   1. Fix the secret (it shouldn't be in the repo).
+#   2. An inline `betterleaks:allow` comment on the offending line (most local, self-documenting).
+#   3. A single fingerprint entry here, with a comment explaining WHY it's a false positive.
+#
+# No entries yet — added only when the baseline scan surfaces a proven false positive.

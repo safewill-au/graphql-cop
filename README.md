@@ -175,3 +175,20 @@ docker run --rm -it graphql-cop:latest --help
 Troubleshooting
 1. File Not Found Error: If the container cannot find the script to execute, ensure the repository structure is intact and the Dockerfile is correctly set up.
 2. Dependencies Issue: If there are missing dependencies, verify that the requirements.txt file is complete.
+
+## Secret scanning
+
+A [betterleaks](https://github.com/betterleaks/betterleaks) pre-commit hook blocks
+secrets (API keys, tokens, passwords, private keys) from being committed. Enable it
+once per clone:
+
+```sh
+brew install betterleaks pre-commit
+pre-commit install
+```
+
+The hook scans your staged diff on every `git commit` using [`.betterleaks.toml`](.betterleaks.toml)
+and blocks the commit on a finding. If `betterleaks` isn't installed it warns and skips.
+
+See [docs/secret-scanning/secret-scanning.md](docs/secret-scanning/secret-scanning.md)
+for handling findings, false positives, and bypass.
