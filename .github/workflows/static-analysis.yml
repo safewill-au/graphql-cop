@@ -1,19 +1,5 @@
-# Static analysis for graphql-cop.
-#
-# Two independent scans, both driven only by the auto-injected GITHUB_TOKEN
-# (no org/repo secrets — required because this is a public fork):
-#   1. codeql            — SAST over the Python source
-#   2. docker-image-scan — build the image, scan OS packages + Python deps with Trivy
-#
-# All actions are pinned to full commit SHAs and are GitHub-owned or from a
-# verified creator (aquasecurity), per the repo's Actions ruleset. Dependabot
-# (github-actions ecosystem, configured in .github/dependabot.yml) keeps the
-# pins current.
-#
-# Fork caveat: on pull_request from an outside fork, GitHub forces GITHUB_TOKEN
-# read-only, so `security-events: write` is NOT granted. The scans still run as
-# checks, but SARIF upload to the Security tab is skipped for those runs (the
-# upload steps are guarded to same-repo events so they don't hard-fail).
+# CodeQL (Python SAST) + Trivy (Docker image) scans. GITHUB_TOKEN only, no
+# secrets (public fork). Fork PRs run the scans but skip SARIF upload.
 name: static-analysis
 
 on:
