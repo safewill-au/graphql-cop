@@ -30,10 +30,10 @@ jobs:
       - name: Install Bandit
         run: pip install bandit
 
-      # Scan project source; skip vendored/venv/build dirs. Report only for now
-      # (findings in the log) — drop the `|| true` to gate merges once triaged.
+      # Scan project source; skip vendored/venv/build dirs. Non-zero exit on
+      # any finding fails the job.
       - name: Run Bandit
-        run: bandit -r . -x ./venv,./__pycache__ || true
+        run: bandit -r . -x ./venv,./__pycache__
 
   docker-image-scan:
     name: Trivy (Docker image scan)
@@ -53,7 +53,6 @@ jobs:
           image-ref: graphql-cop:scan
           format: table
           severity: CRITICAL,HIGH
-          # Report only — findings print to the log. Flip to a non-zero
-          # exit-code once the team has triaged the baseline.
-          exit-code: '0'
+          # Fail the job on any CRITICAL/HIGH finding.
+          exit-code: '1'
           ignore-unfixed: true
