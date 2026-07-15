@@ -53,6 +53,7 @@ jobs:
           image-ref: graphql-cop:scan
           format: table
           severity: CRITICAL,HIGH
-          # Fail the job on any CRITICAL/HIGH finding.
+          # Fail the job on any CRITICAL/HIGH finding, including vulns with no
+          # upstream fix yet.
           exit-code: '1'
-          ignore-unfixed: true
+          ignore-unfixed: false
