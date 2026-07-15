@@ -25,7 +25,7 @@ def detect_graphiql(url, proxy, headers, debug_mode):
   try:
     if response and any(word in response.text for word in heuristics):
       res['result'] = True
-  except:
+  except (AttributeError, TypeError):
       pass
 
   del headers["Accept"]

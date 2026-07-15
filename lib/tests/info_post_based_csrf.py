@@ -1,5 +1,6 @@
 """Checks if queries are allowed over POST not in JSON."""
 from lib.utils import request, curlify
+from simplejson import JSONDecodeError
 
 
 def post_based_csrf(url, proxies, headers, debug_mode):
@@ -22,7 +23,7 @@ def post_based_csrf(url, proxies, headers, debug_mode):
   try:
     if response and response.json()['data']['__typename']:
         res['result'] = True
-  except:
+  except (AttributeError, KeyError, IndexError, TypeError, JSONDecodeError):
       pass
 
   return res

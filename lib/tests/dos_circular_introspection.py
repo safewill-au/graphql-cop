@@ -1,5 +1,6 @@
 """Perform Circular Query based on Introspection."""
 from lib.utils import graph_query, curlify
+from simplejson import JSONDecodeError
 
 def circular_query_introspection(url, proxy, headers, debug_mode):
   """Run a Circular Query using introspection."""
@@ -21,7 +22,7 @@ def circular_query_introspection(url, proxy, headers, debug_mode):
   try:
     if len(gql_response.json()['data']['__schema']['types']) > 25:
       res['result'] = True
-  except:
+  except (AttributeError, KeyError, IndexError, TypeError, JSONDecodeError):
     pass
 
   return res

@@ -1,5 +1,6 @@
 """Collect trace mode details."""
 from lib.utils import graph_query, curlify
+from simplejson import JSONDecodeError
 
 
 def unhandled_error_detection(url, proxy, headers, debug_mode):
@@ -25,7 +26,7 @@ def unhandled_error_detection(url, proxy, headers, debug_mode):
       res['result'] = True
     elif '\'extensions\': {\'exception\':' in str(gql_response.json()).lower():
       res['result'] = True
-  except:
+  except (AttributeError, KeyError, IndexError, TypeError, JSONDecodeError):
     pass
 
   return res

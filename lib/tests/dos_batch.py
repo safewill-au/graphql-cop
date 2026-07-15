@@ -1,5 +1,6 @@
 """Batch tests."""
 from lib.utils import graph_query, curlify
+from simplejson import JSONDecodeError
 
 
 def batch_query(url, proxy, headers, debug_mode):
@@ -23,7 +24,7 @@ def batch_query(url, proxy, headers, debug_mode):
   try:
       if len(gql_response.json()) >= 10:
         res['result'] = True
-  except:
+  except (AttributeError, KeyError, IndexError, TypeError, JSONDecodeError):
     pass
 
   return res

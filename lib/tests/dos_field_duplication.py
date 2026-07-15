@@ -1,5 +1,6 @@
 """Field duplication tests."""
 from lib.utils import graph_query, curlify
+from simplejson import JSONDecodeError
 
 
 def field_duplication(url, proxy, headers, debug_mode):
@@ -24,7 +25,7 @@ def field_duplication(url, proxy, headers, debug_mode):
   try:
     if gql_response.json()['data']['__typename']:
       res['result'] = True
-  except:
+  except (AttributeError, KeyError, IndexError, TypeError, JSONDecodeError):
     pass
 
   return res

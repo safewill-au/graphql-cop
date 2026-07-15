@@ -1,5 +1,6 @@
 """Field suggestions tests."""
 from lib.utils import graph_query, get_error, curlify
+from simplejson import JSONDecodeError
 
 
 def field_suggestions(url, proxy, headers, debug_mode):
@@ -23,7 +24,7 @@ def field_suggestions(url, proxy, headers, debug_mode):
   try:
     if 'Did you mean' in get_error(gql_response.json()):
       res['result'] = True
-  except:
+  except (AttributeError, KeyError, IndexError, TypeError, JSONDecodeError):
     pass
 
   return res

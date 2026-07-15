@@ -1,5 +1,6 @@
 """Alias overloading tests."""
 from lib.utils import graph_query, curlify
+from simplejson import JSONDecodeError
 
 
 def alias_overloading(url, proxy, headers, debug_mode):
@@ -27,7 +28,7 @@ def alias_overloading(url, proxy, headers, debug_mode):
   try:
     if gql_response.json()['data']['alias100']:
       res['result'] = True
-  except:
+  except (AttributeError, KeyError, IndexError, TypeError, JSONDecodeError):
     pass
 
   return res

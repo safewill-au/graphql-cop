@@ -1,5 +1,6 @@
 """Perform introspection tests."""
 from lib.utils import graph_query, curlify
+from simplejson import JSONDecodeError
 
 
 def introspection(url, proxy, headers, debug_mode):
@@ -22,7 +23,7 @@ def introspection(url, proxy, headers, debug_mode):
   try:
     if gql_response.json()['data']['__schema']['types']:
       res['result'] = True
-  except:
+  except (AttributeError, KeyError, IndexError, TypeError, JSONDecodeError):
     pass
 
   return res
