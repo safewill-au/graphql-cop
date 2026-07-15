@@ -1,5 +1,5 @@
-# CodeQL (Python SAST) + Trivy (Docker image) scans. GITHUB_TOKEN only, no
-# secrets (public fork). Fork PRs run the scans but skip SARIF upload.
+# Bandit (Python SAST) + Trivy (Docker image) scans. GITHUB_TOKEN only, no
+# secrets (public fork). Findings print to the Actions log — no SARIF upload.
 name: static-analysis
 
 on:
@@ -11,39 +11,33 @@ on:
     # Weekly re-scan so newly disclosed CVEs surface even without a code change.
     - cron: '17 4 * * 1'
 
-# Least privilege by default; jobs opt into more where needed.
 permissions:
   contents: read
 
 jobs:
-  codeql:
-    name: CodeQL (Python SAST)
+  bandit:
+    name: Bandit (Python SAST)
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write # upload code-scanning results (same-repo runs only)
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@f58f0d11ebf5dedd870fab2f999275f7602cfa46 # codeql-bundle-v2.26.0
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
-          languages: python
-          queries: security-and-quality
+          python-version: '3.12'
 
-      # Python is interpreted — no build step; analyze the source directly.
-      - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@f58f0d11ebf5dedd870fab2f999275f7602cfa46 # codeql-bundle-v2.26.0
-        with:
-          category: /language:python
+      - name: Install Bandit
+        run: pip install bandit
+
+      # Scan project source; skip vendored/venv/build dirs. Report only for now
+      # (findings in the log) — drop the `|| true` to gate merges once triaged.
+      - name: Run Bandit
+        run: bandit -r . -x ./venv,./__pycache__ || true
 
   docker-image-scan:
     name: Trivy (Docker image scan)
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write # upload SARIF (same-repo runs only)
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -57,20 +51,9 @@ jobs:
         with:
           scan-type: image
           image-ref: graphql-cop:scan
-          format: sarif
-          output: trivy-results.sarif
+          format: table
           severity: CRITICAL,HIGH
-          # Report only — don't fail the check on findings yet. Flip to a
-          # non-zero exit-code once the team has triaged the baseline.
+          # Report only — findings print to the log. Flip to a non-zero
+          # exit-code once the team has triaged the baseline.
           exit-code: '0'
           ignore-unfixed: true
-
-      # Only same-repo events get security-events:write; fork PRs would 403 here.
-      - name: Upload Trivy SARIF
-        if: >-
-          github.event_name != 'pull_request' ||
-          github.event.pull_request.head.repo.full_name == github.repository
-        uses: github/codeql-action/upload-sarif@f58f0d11ebf5dedd870fab2f999275f7602cfa46 # codeql-bundle-v2.26.0
-        with:
-          sarif_file: trivy-results.sarif
-          category: trivy-image
