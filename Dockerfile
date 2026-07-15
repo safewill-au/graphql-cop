@@ -1,18 +1,18 @@
-# Use the official Python 3 base image
-FROM python:3.12-slim
+# Multi-stage build: resolve deps on slim, run on distroless.
+# Distroless ships no shell, apt, perl, gzip, ncurses or util-linux, so the
+# base-image CVE surface is near zero. Build stage matches the runtime's
+# Python 3.11 (debian12) so compiled wheels stay ABI-compatible.
 
-# Set the working directory in the container
+# --- build stage: resolve deps into an isolated prefix ---
+FROM python:3.11-slim AS build
 WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --target=/deps -r requirements.txt
 
-# Copy the requirements file into the container
+# --- runtime: distroless, nonroot, no shell/pkg-manager ---
+FROM gcr.io/distroless/python3-debian12:nonroot
+WORKDIR /app
+ENV PYTHONPATH=/deps
+COPY --from=build /deps /deps
 COPY . .
-
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Add non root user
-RUN useradd -m appuser
-USER appuser
-
-# Set the entry point to the Python script so arguments can be passed
-ENTRYPOINT ["python", "graphql-cop.py"]
+ENTRYPOINT ["python3", "graphql-cop.py"]
