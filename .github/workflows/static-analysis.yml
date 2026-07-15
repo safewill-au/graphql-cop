@@ -53,7 +53,9 @@ jobs:
           image-ref: graphql-cop:scan
           format: table
           severity: CRITICAL,HIGH
-          # Fail the job on any CRITICAL/HIGH finding, including vulns with no
-          # upstream fix yet.
+          # Fail the job on any CRITICAL/HIGH finding, including unfixed ones.
           exit-code: '1'
           ignore-unfixed: false
+          # Documented, time-boxed suppressions for unreachable base-image OS
+          # CVEs (see .trivyignore.yaml). Anything not listed there still fails.
+          trivyignores: .trivyignore.yaml
