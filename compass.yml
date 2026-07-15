@@ -1,0 +1,16 @@
+name: graphql-cop
+id: ari:cloud:compass:05a65991-dc39-42e6-8d64-58b1cd1eb971:component/e899e1ed-06d2-40bd-b4d2-3dd9cef71500/77a56f5d-1c8a-41cf-82d4-291c6f891411
+description: Security Auditor Utility for GraphQL APIs
+configVersion: 1
+typeId: SERVICE
+fields:
+  tier: 4
+links:
+  - name: null
+    type: REPOSITORY
+    url: https://github.com/safewill-au/graphql-cop
+relationships:
+  DEPENDS_ON: []
+labels:
+  - source:github
+customFields: null
