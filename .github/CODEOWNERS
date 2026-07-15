@@ -1,0 +1,3 @@
+# Every change to this repo requires review from the Safewill security team.
+# Enforced by the "protect-main" ruleset (require_code_owner_review).
+* @safewill-au/security
