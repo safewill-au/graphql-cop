@@ -1,0 +1,54 @@
+# Trivy ignore file — documented, time-boxed suppressions.
+#
+# Every entry is a Debian base-image (python:3.12-slim) OS package with NO
+# upstream fix available, and none are reachable from graphql-cop's runtime
+# path. graphql-cop is a pure-Python CLI: HTTPS via `requests` -> JSON parse
+# -> ANSI output. It never invokes perl, the gzip binary, ncurses/terminfo,
+# block-device/partition code, or ACLs.
+#
+# expired_at forces re-review: once past the date the CVE is reported again,
+# so if Debian has shipped a fix by then we get told to upgrade.
+vulnerabilities:
+  # --- util-linux family (9 pkgs: bsdutils, libblkid1, libmount1, libuuid1,
+  #     libsmartcols1, liblastlog2-2, mount, login, util-linux) ---
+  - id: CVE-2026-53615
+    statement: "libblkid disk-partition parser overflow; no fix; app never reads block devices/partitions."
+    expired_at: 2026-10-15
+
+  # --- ncurses (libncursesw6, libtinfo6, ncurses-base, ncurses-bin) ---
+  - id: CVE-2025-69720
+    statement: "ncurses buffer overflow; no fix; app emits ANSI escapes via termcolor, no terminfo lookups."
+    expired_at: 2026-10-15
+
+  # --- gzip ---
+  - id: CVE-2026-41992
+    statement: "gzip LZH decompress overflow; no fix; app never shells out to the gzip binary (requests uses zlib)."
+    expired_at: 2026-10-15
+
+  # --- libacl1 ---
+  - id: CVE-2026-54369
+    statement: "libacl symlink-traversal privesc; no fix; ACLs not used by the app."
+    expired_at: 2026-10-15
+
+  # --- perl-base (7 CVEs) — pure-Python app, perl is never executed ---
+  - id: CVE-2026-13221
+    statement: "perl: silently incorrect regex; no fix; perl never invoked by this Python app."
+    expired_at: 2026-10-15
+  - id: CVE-2026-8376
+    statement: "perl: heap overflow compiling regex on 32-bit; no fix; perl never invoked."
+    expired_at: 2026-10-15
+  - id: CVE-2026-42496
+    statement: "perl Archive-Tar: path traversal via crafted symlinks; no fix; perl never invoked."
+    expired_at: 2026-10-15
+  - id: CVE-2026-42497
+    statement: "perl Archive-Tar: arbitrary file modification via hardlinks; no fix; perl never invoked."
+    expired_at: 2026-10-15
+  - id: CVE-2026-48962
+    statement: "perl IO-Compress: code execution via attacker-controlled output glob; no fix; perl never invoked."
+    expired_at: 2026-10-15
+  - id: CVE-2026-57432
+    statement: "perl: integer overflow in S_measure_struct; no fix; perl never invoked."
+    expired_at: 2026-10-15
+  - id: CVE-2026-9538
+    statement: "perl Archive-Tar: DoS via crafted tar header; no fix; perl never invoked."
+    expired_at: 2026-10-15

@@ -1,0 +1,61 @@
+# Bandit (Python SAST) + Trivy (Docker image) scans. GITHUB_TOKEN only, no
+# secrets (public fork). Findings print to the Actions log — no SARIF upload.
+name: static-analysis
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly re-scan so newly disclosed CVEs surface even without a code change.
+    - cron: '17 4 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  bandit:
+    name: Bandit (Python SAST)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.12'
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      # Scan project source; skip vendored/venv/build dirs. Non-zero exit on
+      # any finding fails the job.
+      - name: Run Bandit
+        run: bandit -r . -x ./venv,./__pycache__
+
+  docker-image-scan:
+    name: Trivy (Docker image scan)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      # Build locally so we scan exactly what this repo's Dockerfile produces.
+      - name: Build image
+        run: docker build -t graphql-cop:scan .
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: graphql-cop:scan
+          format: table
+          severity: CRITICAL,HIGH
+          # Fail the job on any CRITICAL/HIGH finding, including unfixed ones.
+          exit-code: '1'
+          ignore-unfixed: false
+          # Documented, time-boxed suppressions for unreachable base-image OS
+          # CVEs (see .trivyignore.yaml). Anything not listed there still fails.
+          trivyignores: .trivyignore.yaml

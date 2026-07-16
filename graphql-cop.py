@@ -61,7 +61,7 @@ if options.excluded_tests:
    for excluded_test in options.excluded_tests.split(','):
         try:
             del tests[excluded_test]
-        except:
+        except KeyError:
             print(f'{excluded_test} cannot be excluded, skipping')
 
 elif options.tor:
@@ -79,7 +79,7 @@ if options.header != None:
         for l in options.header:
             extra_headers = loads(l)
             HEADERS.update(extra_headers)
-    except:
+    except (ValueError, TypeError):
         print("Cannot cast %s into header dictionary. Ensure the format \'{\"key\": \"value\"}\'."%(options.header))
 
 if not urlparse(options.url).scheme:

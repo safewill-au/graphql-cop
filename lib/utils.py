@@ -15,7 +15,7 @@ def curlify(obj):
   if req.body:
     try:
       data = req.body.decode('UTF-8')
-    except:
+    except AttributeError:
       reqb = bytes(req.body, 'UTF-8')
       data = reqb.decode('UTF-8')
   else:
@@ -29,7 +29,7 @@ def get_error(resp):
   error = None
   try:
       error = resp['errors'][0]['message']
-  except:
+  except (KeyError, IndexError, TypeError):
       pass
   return error
 
@@ -45,7 +45,8 @@ def graph_query(url, proxies, headers, operation='query', payload={}, batch=Fals
     response = requests.post(url,
                             headers=headers,
                             cookies=None,
-                            verify=False,
+                            # Scanner must reach targets regardless of TLS validity (self-signed, expired).
+                            verify=False,  # nosec B501
                             allow_redirects=True,
                             timeout=60,
                             proxies=proxies,
@@ -63,13 +64,14 @@ def request(url, proxies, headers, params=None, data=None, verb='GET'):
                             params=params,
                             headers=headers,
                             cookies=None,
+                            # Scanner must reach targets regardless of TLS validity (self-signed, expired).
                             verify=False,
                             allow_redirects=True,
                             proxies=proxies,
                             timeout=20,
                             data=data)
     return response
-  except:
+  except requests.exceptions.RequestException:
     return None
 
 

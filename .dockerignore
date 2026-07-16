@@ -1,0 +1,14 @@
+# Keep build/scan cruft (and the stale venv with old deps) out of the image.
+# Runtime needs only: graphql-cop.py, lib/, config.py, version.py
+# (+ requirements.txt, used in the build stage).
+venv/
+**/__pycache__/
+*.pyc
+.git/
+.github/
+escape-hatches/
+static/
+*.md
+LICENSE
+graphql-cop.code-workspace
+.gitignore
